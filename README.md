@@ -14,12 +14,16 @@ Bootstrap for docker web-applications
 ## For use with jwilder/nginx-proxy
 Container-app needs
 
+```
 environment:
   \- VIRTUAL_HOST=backend.mydomain.no
+```
 
 And to be in the same network as jwilder/nginx-proxy, e.g.:
 
+```
 networks:
   default:
     external:
       name: webproxy
+```
