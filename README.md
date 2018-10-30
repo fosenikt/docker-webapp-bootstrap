@@ -16,7 +16,7 @@ Container-app needs
 
 ```
 environment:
-  \- VIRTUAL_HOST=backend.mydomain.no
+  - VIRTUAL_HOST=backend.mydomain.no
 ```
 
 And to be in the same network as jwilder/nginx-proxy, e.g.:
