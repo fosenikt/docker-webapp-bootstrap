@@ -1,0 +1,81 @@
+version: '3'
+services:
+
+  ## FRONTEND
+  bootstrap_frontend:
+    build:
+      context: .
+      dockerfile: /.docker/frontend/Dockerfile
+    #env_file: .env
+    ports:
+      - "9090:80"
+    depends_on:
+      - bootstrap_database
+    links:
+      - bootstrap_database:mysql
+    volumes:
+      - ./:/frontend
+    environment:
+      - VIRTUAL_HOST=frontend.mydomain.no # Required for auto-detect proxy settings
+
+
+  ## BACKEND
+  bootstrap_backend:
+    build:
+      context: .
+      dockerfile: /.docker/backend/Dockerfile
+    #env_file: .env
+    ports:
+      - "9091:80"
+    depends_on:
+      - bootstrap_database
+    links:
+      - bootstrap_database:mysql
+    volumes:
+      - ./:/backend
+    environment:
+      - VIRTUAL_HOST=backend.mydomain.no # Required for auto-detect proxy settings
+
+  ## MYSQL / DATABASE
+  bootstrap_database:
+    build:
+      context: .
+      dockerfile: /.docker/mysql/Dockerfile
+    command: mysqld --sql_mode=""
+    ports:
+      - 13307:3306
+    environment:
+      - MYSQL_DATABASE=fosenikt
+      - MYSQL_USER=fosenikt
+      - MYSQL_PASSWORD=fosenikt
+      - MYSQL_ROOT_PASSWORD=fosenikt
+    volumes:
+      - /mysql/config:/etc/mysql/conf.d
+      - persistent:/var/lib/mysql
+
+
+  ## PHPMYADMIN
+  ## Used for development/debugging. Do not use in production.
+  bootstrap_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - bootstrap_database:mysql
+    ports:
+      - 9092:80
+    environment:
+      PMA_HOST: bootstrap_database
+      PMA_USER: fosenikt
+      PMA_PASSWORD: fosenikt
+
+
+
+## VOLUMES
+volumes:
+    persistent:
+
+
+## Need to be in the same network as jwilder/nginx-proxy, to auto-detect proxy settings
+networks:
+  default:
+    external:
+      name: webproxy
